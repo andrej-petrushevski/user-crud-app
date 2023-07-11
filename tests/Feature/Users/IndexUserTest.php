@@ -3,7 +3,6 @@
 namespace Tests\Feature\Users;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use JetBrains\PhpStorm\NoReturn;
@@ -13,13 +12,11 @@ class IndexUserTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected Collection $users;
-
     #[NoReturn] public function setUp(): void
     {
         parent::setUp();
 
-        $this->users = User::factory()->count(10)->create();
+        User::factory()->count(10)->create();
     }
 
     public function test_guests_cannot_list_users(): void
@@ -30,7 +27,7 @@ class IndexUserTest extends TestCase
 
     public function test_regular_users_cannot_list_users(): void
     {
-        $regularUser = User::factory()->regularUser()->create();
+        $regularUser = User::factory()->regular()->create();
 
         $this->actingAs($regularUser)
             ->getJson(route('users.index', ['api_key' => $regularUser->api_key]))

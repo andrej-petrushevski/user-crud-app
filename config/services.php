@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'user-service' => [
+        'key' => env('USER_SERVICE_KEY', '123asd'),
+        'url' => env('USER_SERVICE_URL', 'http://random.com')
+    ]
+
 ];

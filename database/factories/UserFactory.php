@@ -36,7 +36,7 @@ class UserFactory extends Factory
         });
     }
 
-    public function regularUser(): Factory
+    public function regular(): Factory
     {
         return $this->state(function (array $attributes) {
             return [

@@ -10,7 +10,7 @@ class StoreUserRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
+    public function authorize()
     {
         return auth()->user()->can('store', User::class);
     }
@@ -24,7 +24,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:50'],
-            'email' => ['required', 'email', 'max:100'],
+            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
             'password' => ['required', 'alpha_num:ascii', 'max:20'],
             // This field should probably be verified against a phone verification service
             // or a custom phone rule should be created

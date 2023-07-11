@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\UserController;
-use App\Http\Middleware\ApiKeyMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(ApiKeyMiddleware::class)->group(function () {
-    Route::get('users', [UserController::class, 'index'])->name('users.index');
-    Route::post('users', [UserController::class, 'store'])->name('users.store');
+Route::middleware('api')->group(function () {
+    Route::apiResource('users', UserController::class)->except('destroy');
 });

@@ -2,13 +2,18 @@
 
 namespace Tests\Feature\Users;
 
+use App\Contracts\UserServiceInterface;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
+use Mockery;
 use Tests\TestCase;
 
 class StoreUserTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected array $payload;
 
     public function setUp(): void
@@ -34,7 +39,7 @@ class StoreUserTest extends TestCase
 
     public function test_regular_users_cannot_create_other_users(): void
     {
-        $regularUser = User::factory()->regularUser()->create();
+        $regularUser = User::factory()->regular()->create();
         $headers = ['X-Api-Key' => $regularUser->api_key];
 
         $this->actingAs($regularUser)
@@ -46,10 +51,17 @@ class StoreUserTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_admin_users_can_create_other_users(): void
+    public function test_admins_can_create_users_and_upon_creation_users_are_synced_with_an_external_service(): void
     {
         $admin = User::factory()->admin()->create();
         $headers = ['X-Api-Key' => $admin->api_key];
+
+        $userServiceMock = Mockery::mock(UserServiceInterface::class);
+        $userServiceMock->shouldReceive('createUser')
+            ->once()
+            ->with(Mockery::type(User::class));
+
+        $this->app->instance(UserServiceInterface::class, $userServiceMock);
 
         $this->actingAs($admin)
             ->postJson(
@@ -307,6 +319,7 @@ class StoreUserTest extends TestCase
             ->assertUnprocessable()
             ->assertInvalid(['phone_number' => 'The phone number field is required.']);
     }
+
     public function test_the_phone_number_field_is_limited_to_30_characters(): void
     {
         $admin = User::factory()->admin()->create();
@@ -329,6 +342,7 @@ class StoreUserTest extends TestCase
             ->assertUnprocessable()
             ->assertInvalid(['phone_number' => 'The phone number field must not be greater than 30 characters.']);
     }
+
     public function test_the_role_field_is_required(): void
     {
         $admin = User::factory()->admin()->create();
